@@ -5,10 +5,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
     integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
     crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
     integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
     crossorigin="anonymous"></script>
-    <script src="/socket.io/socket.io.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+
 <div class="container">
     <br>
     <div class="jumbotron">
@@ -16,7 +17,7 @@
         <br>
         <input id="name" class="form-control" placeholder="Name">
         <br>
-        <!--textarea for multiline input-->
+        <!--textArea for multiline input-->
         <textarea id="message" class="form-control" placeholder="Message"></textarea>
         <br>
         <button id="send" class="btn btn-success">
@@ -28,20 +29,25 @@
     </div>
 </div>
 <script>
+    var socket = io()
+
     //document ready function
     $(() => {
+        var _message = { name: "Sara", message: "Hell Com on!" }
+        console.log(_message)
         $("#send").click(() => {
             var message = { name: $("#name").val(), message: $("#message").val() }
-           postMessages(message)
-            //addMessages(message)
-            //addMessages({ name: 'Sara', message: "Hello!" })
+            postMessages(message)
 
         })
         getMessages()
     })
+    socket.on('message', addMessages)
     function addMessages(message) {
         $("#messages").append(`<h4>${message.name}</h4> <p>${message.message}</p> `)
     }
+
+
     function getMessages() {
         $.get("http://localhost:4000/messages", (data) => {
             data.forEach(addMessages)
@@ -50,6 +56,5 @@
 
     function postMessages(message) {
         $.post("http://localhost:4000/messages", message)
-       // console.log(message)
     }
 </script>
