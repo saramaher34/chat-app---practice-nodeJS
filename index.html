@@ -33,8 +33,6 @@
 
     //document ready function
     $(() => {
-        var _message = { name: "Sara", message: "Hell Com on!" }
-        console.log(_message)
         $("#send").click(() => {
             var message = { name: $("#name").val(), message: $("#message").val() }
             postMessages(message)
