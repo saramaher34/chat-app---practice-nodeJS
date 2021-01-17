@@ -14,28 +14,42 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 
 //if going to production store in a safe configuration file
-var dbURL = 'mongodb+srv://admin:<password>@cluster0.hejeo.mongodb.net/<dbName>?retryWrites=true&w=majority'
+var dbURL = 'mongodb+srv://admin:<password>@cluster0.hejeo.mongodb.net/<dbname>?retryWrites=true&w=majority'
 
-var Mesasage = mongoose.model('Message', {
+var Message = mongoose.model('Message', {
     name: String,
     message: String
 })
 
 
 app.get('/messages', (req, res) => {
-    Mesasage.find({},(err, messages)=>{
+    Message.find({}, (err, messages) => {
 
         res.send(messages)
     })
 })
 app.post('/messages', (req, res) => {
-    var message = new Mesasage(req.body)
-    message.save((err) => {
-        if (err)
+    var message = new Message(req.body)
+    message.save()
+        .then(() => {
+            return Message.findOne({ message: 'badword' })
+                .then((censored) => {
+
+
+                    if (censored) {
+                        console.log('censored word found', censored)
+                        return Message.remove({ _id: censored.id })
+
+                    }
+                    io.emit('message', req.body)
+                    res.sendStatus(200)
+                })
+
+        })
+        .catch(err => {
             sendStatus(500)
-        io.emit('message', req.body)
-        res.sendStatus(200)
-    })
+            return console.error(err)
+        })
 })
 
 io.on("connection", (socket) => {
